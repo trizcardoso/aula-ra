@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Minha aplicação WebAR</title>
-    
+
     <!-- 1. BIBLIOTECAS EXTERNAS -->
     <script src="https://aframe.io"></script>
     <script src="https://jsdelivr.net"></script>
@@ -20,7 +20,7 @@
             overflow: hidden; 
             font-family: Arial, sans-serif; 
         }
-        
+
         /* CORREÇÃO IMPORTANTE: Remove o fundo preto global que pode estar cobrindo o vídeo */
         body {
             background-color: transparent !important;
@@ -53,7 +53,7 @@
         }
         #botao:active { transform: scale(0.97); }
         #erro { display: none; margin-top: 20px; max-width: 350px; color: #ff6b6b; line-height: 1.4; }
-        
+
         .ui-container { 
             position: fixed; 
             top: 10px; 
@@ -66,7 +66,7 @@
         }
         .ui-container h1 { margin: 0 0 5px; font-size: 22px; }
         .ui-container p { margin: 0; font-size: 14px; }
-        
+
         /* CORREÇÃO CSS: Força a cena 3D a ficar sobreposta com fundo transparente */
         a-scene { 
             width: 100% !important; 
@@ -107,22 +107,18 @@
 
     <!-- 5. CENA DE REALIDADE AUMENTADA -->
     <!-- CORREÇÃO: Adicionado colorManagement: true e o parâmetro embedded -->
-    <a-scene id="scene"
-  mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: yes; uiScanning: yes; uiError: yes;"
-  color-space="sRGB"
-  renderer="colorManagement: true; alpha: true;"
-  vr-mode-ui="enabled: false"
-  device-orientation-permission-ui="enabled: false"
-  embedded>
+    <a-scene id="scene" mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: yes; uiScanning: yes; uiError: yes;" renderer="colorManagement: true; alpha: true;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" embedded>
+    <a-scene id="scene" mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: yes; 
+        uiScanning: yes; uiError: yes;" color-space="sRGB" renderer="colorManagement: true;
+        alpha: true;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" embedded>
 
-        
         <!-- 6. CÂMERA DO MINDAR -->
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
         <!-- 7. ENTIDADE ALVO -->
-        
+
             <a-plane color="#0066ff" opacity="0.5" position="0 0 0" width="1" height="0.552"></a-plane>
-        
+
 
     </a-scene>
 
@@ -136,7 +132,7 @@
         botao.addEventListener("click", async () => {
             botao.disabled = true;
             botao.textContent = "Iniciando câmera...";
-            
+
             try {
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                     throw new Error("Seu navegador não suporta acesso à câmera.");
@@ -147,7 +143,7 @@
                     video: { facingMode: { ideal: "environment" } }, 
                     audio: false 
                 });
-                
+
                 // Libera o stream de teste para que o MindAR possa assumir o controle da câmera
                 stream.getTracks().forEach(track => track.stop());
 
