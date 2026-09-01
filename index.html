@@ -2,7 +2,10 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
 
     <title>Minha aplicação WebAR</title>
 
@@ -17,16 +20,11 @@
         html,
         body {
             margin: 0;
-            padding: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
             font-family: Arial, sans-serif;
-            background: transparent;
-        }
-
-        body {
-            position: relative;
+            background: #111;
         }
 
         #inicio {
@@ -78,7 +76,7 @@
         #erro {
             display: none;
             margin-top: 20px;
-            max-width: 350px;
+            max-width: 380px;
             color: #ff6b6b;
             line-height: 1.4;
         }
@@ -119,8 +117,8 @@
         <h1>Minha aplicação WebAR</h1>
 
         <p>
-            Permita o acesso à câmera e aponte o celular
-            para a imagem-alvo.
+            Para usar a realidade aumentada, permita o acesso à câmera
+            e aponte o celular para a imagem-alvo.
         </p>
 
         <button id="botao">
@@ -132,7 +130,9 @@
 
     <div class="ui-container">
         <h1>Minha aplicação WebAR</h1>
-        <p>Aponte a câmera para a imagem-alvo.</p>
+        <p id="status">
+            Aguardando início...
+        </p>
     </div>
 
     <a-scene
@@ -144,11 +144,11 @@
             uiScanning: yes;
             uiError: yes;
         "
-        color-space="sRGB"
         renderer="
             colorManagement: true;
             alpha: true;
         "
+        color-space="sRGB"
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
         embedded
@@ -178,76 +178,78 @@
         const inicio = document.getElementById("inicio");
         const erro = document.getElementById("erro");
         const scene = document.getElementById("scene");
+        const status = document.getElementById("status");
 
         function mostrarErro(mensagem) {
+            console.error(mensagem);
+
             erro.style.display = "block";
             erro.textContent = mensagem;
+
             botao.disabled = false;
             botao.textContent = "Tentar novamente";
+
+            status.textContent = "Erro ao iniciar";
         }
 
-        async function iniciarAR() {
-            try {
-                const mindarSystem = scene.systems["mindar-image-system"];
+        scene.addEventListener("loaded", () => {
+            console.log("A-Frame carregado.");
+            status.textContent = "A-Frame carregado.";
+        });
 
-                if (!mindarSystem) {
-                    throw new Error("O sistema do MindAR não foi encontrado.");
-                }
+        scene.addEventListener("arReady", () => {
+            console.log("MindAR iniciou a câmera.");
+            status.textContent = "Câmera iniciada. Procurando imagem...";
+            inicio.style.display = "none";
+        });
 
-                await mindarSystem.start();
+        scene.addEventListener("arError", (event) => {
+            console.error("Erro do MindAR:", event);
 
-                inicio.style.display = "none";
-            } catch (e) {
-                console.error("Erro ao iniciar o MindAR:", e);
+            mostrarErro(
+                "O MindAR não conseguiu iniciar a câmera. Verifique a permissão da câmera neste navegador."
+            );
+        });
 
-                mostrarErro(
-                    "Não foi possível iniciar a realidade aumentada. Verifique a permissão da câmera e se o site está rodando em HTTPS ou localhost."
-                );
-            }
-        }
+        scene.addEventListener("targetFound", () => {
+            console.log("Imagem encontrada!");
+            status.textContent = "Imagem encontrada!";
+        });
+
+        scene.addEventListener("targetLost", () => {
+            console.log("Imagem perdida.");
+            status.textContent = "Aponte novamente para a imagem-alvo.";
+        });
 
         botao.addEventListener("click", async () => {
             botao.disabled = true;
             botao.textContent = "Iniciando câmera...";
             erro.style.display = "none";
+            status.textContent = "Iniciando MindAR...";
 
             try {
-                if (
-                    !navigator.mediaDevices ||
-                    !navigator.mediaDevices.getUserMedia
-                ) {
+                const mindarSystem =
+                    scene.systems["mindar-image-system"];
+
+                if (!mindarSystem) {
                     throw new Error(
-                        "Seu navegador não suporta acesso à câmera."
+                        "O sistema mindar-image-system não foi encontrado."
                     );
                 }
 
-                const stream =
-                    await navigator.mediaDevices.getUserMedia({
-                        video: {
-                            facingMode: {
-                                ideal: "environment"
-                            }
-                        },
-                        audio: false
-                    });
+                console.log("Sistema MindAR encontrado.");
 
-                stream.getTracks().forEach(track => track.stop());
+                inicio.style.display = "none";
 
-                if (scene.hasLoaded) {
-                    iniciarAR();
-                } else {
-                    scene.addEventListener(
-                        "loaded",
-                        iniciarAR,
-                        { once: true }
-                    );
-                }
+                await mindarSystem.start();
 
             } catch (e) {
-                console.error("Erro ao acessar a câmera:", e);
+                console.error(e);
+
+                inicio.style.display = "flex";
 
                 mostrarErro(
-                    "Não foi possível acessar a câmera. Permita o acesso à câmera e abra este projeto usando HTTPS ou localhost."
+                    "Não foi possível iniciar a câmera. Verifique se o navegador tem permissão para usar a câmera."
                 );
             }
         });
