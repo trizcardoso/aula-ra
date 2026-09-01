@@ -2,258 +2,74 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Minha aplicação WebAR</title>
+    <title>Teste WebAR</title>
 
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
         html,
         body {
             margin: 0;
+            padding: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: Arial, sans-serif;
-            background: #111;
         }
 
-        #inicio {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 25px;
-            text-align: center;
-            color: white;
-            background: #111;
-        }
-
-        #inicio h1 {
-            margin: 0 0 10px;
-            font-size: 28px;
-        }
-
-        #inicio p {
-            max-width: 350px;
-            margin: 0 0 25px;
-            line-height: 1.5;
-            color: #ccc;
-        }
-
-        #botao {
-            border: 0;
-            border-radius: 12px;
-            padding: 16px 30px;
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-            background: #0066ff;
-            cursor: pointer;
-        }
-
-        #botao:active {
-            transform: scale(0.97);
-        }
-
-        #botao:disabled {
-            opacity: 0.7;
-            cursor: wait;
-        }
-
-        #erro {
-            display: none;
-            margin-top: 20px;
-            max-width: 380px;
-            color: #ff6b6b;
-            line-height: 1.4;
-        }
-
-        .ui-container {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            right: 15px;
-            z-index: 1000;
-            color: white;
-            text-shadow: 1px 1px 3px black;
-            pointer-events: none;
-        }
-
-        .ui-container h1 {
-            margin: 0 0 5px;
-            font-size: 22px;
-        }
-
-        .ui-container p {
-            margin: 0;
-            font-size: 14px;
-        }
-
-        a-scene {
-            position: fixed !important;
-            inset: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
+        .container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
         }
     </style>
 </head>
 
 <body>
 
-    <div id="inicio">
-        <h1>Minha aplicação WebAR</h1>
+    <div class="container">
 
-        <p>
-            Para usar a realidade aumentada, permita o acesso à câmera
-            e aponte o celular para a imagem-alvo.
-        </p>
-
-        <button id="botao">
-            Iniciar câmera
-        </button>
-
-        <div id="erro"></div>
-    </div>
-
-    <div class="ui-container">
-        <h1>Minha aplicação WebAR</h1>
-        <p id="status">
-            Aguardando início...
-        </p>
-    </div>
-
-    <a-scene
-        id="scene"
-        mindar-image="
-            imageTargetSrc: ./targets.mind;
-            autoStart: false;
-            uiLoading: yes;
-            uiScanning: yes;
-            uiError: yes;
-        "
-        renderer="
-            colorManagement: true;
-            alpha: true;
-        "
-        color-space="sRGB"
-        vr-mode-ui="enabled: false"
-        device-orientation-permission-ui="enabled: false"
-        embedded
-    >
-
-        <a-camera
-            position="0 0 0"
-            look-controls="enabled: false"
-        ></a-camera>
-
-        <a-entity
-            mindar-image-target="targetIndex: 0"
+        <a-scene
+            mindar-image="
+                imageTargetSrc: ./targets.mind;
+                autoStart: true;
+                uiLoading: yes;
+                uiScanning: yes;
+                uiError: yes;
+            "
+            embedded
+            color-space="sRGB"
+            renderer="
+                colorManagement: true;
+                physicallyCorrectLights;
+            "
+            vr-mode-ui="enabled: false"
+            device-orientation-permission-ui="enabled: false"
         >
-            <a-plane
-                color="#0066ff"
-                opacity="0.5"
+
+            <a-camera
                 position="0 0 0"
-                width="1"
-                height="0.552"
-            ></a-plane>
-        </a-entity>
+                look-controls="enabled: false"
+            ></a-camera>
 
-    </a-scene>
+            <a-entity
+                mindar-image-target="targetIndex: 0"
+            >
+                <a-plane
+                    color="blue"
+                    opacity="0.5"
+                    position="0 0 0"
+                    height="0.552"
+                    width="1"
+                ></a-plane>
+            </a-entity>
 
-    <script>
-        const botao = document.getElementById("botao");
-        const inicio = document.getElementById("inicio");
-        const erro = document.getElementById("erro");
-        const scene = document.getElementById("scene");
-        const status = document.getElementById("status");
+        </a-scene>
 
-        function mostrarErro(mensagem) {
-            console.error(mensagem);
-
-            erro.style.display = "block";
-            erro.textContent = mensagem;
-
-            botao.disabled = false;
-            botao.textContent = "Tentar novamente";
-
-            status.textContent = "Erro ao iniciar";
-        }
-
-        scene.addEventListener("loaded", () => {
-            console.log("A-Frame carregado.");
-            status.textContent = "A-Frame carregado.";
-        });
-
-        scene.addEventListener("arReady", () => {
-            console.log("MindAR iniciou a câmera.");
-            status.textContent = "Câmera iniciada. Procurando imagem...";
-            inicio.style.display = "none";
-        });
-
-        scene.addEventListener("arError", (event) => {
-            console.error("Erro do MindAR:", event);
-
-            mostrarErro(
-                "O MindAR não conseguiu iniciar a câmera. Verifique a permissão da câmera neste navegador."
-            );
-        });
-
-        scene.addEventListener("targetFound", () => {
-            console.log("Imagem encontrada!");
-            status.textContent = "Imagem encontrada!";
-        });
-
-        scene.addEventListener("targetLost", () => {
-            console.log("Imagem perdida.");
-            status.textContent = "Aponte novamente para a imagem-alvo.";
-        });
-
-        botao.addEventListener("click", async () => {
-            botao.disabled = true;
-            botao.textContent = "Iniciando câmera...";
-            erro.style.display = "none";
-            status.textContent = "Iniciando MindAR...";
-
-            try {
-                const mindarSystem =
-                    scene.systems["mindar-image-system"];
-
-                if (!mindarSystem) {
-                    throw new Error(
-                        "O sistema mindar-image-system não foi encontrado."
-                    );
-                }
-
-                console.log("Sistema MindAR encontrado.");
-
-                inicio.style.display = "none";
-
-                await mindarSystem.start();
-
-            } catch (e) {
-                console.error(e);
-
-                inicio.style.display = "flex";
-
-                mostrarErro(
-                    "Não foi possível iniciar a câmera. Verifique se o navegador tem permissão para usar a câmera."
-                );
-            }
-        });
-    </script>
+    </div>
 
 </body>
 </html>
