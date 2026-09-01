@@ -3,63 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Teste WebAR - MindAR + A-Frame</title>
+    <title>WebAR com MindAR</title>
 
-    <!-- A-Frame -->
+    <!-- A-Frame (necessário para a cena 3D) -->
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-    <!-- MindAR Image Tracking -->
+    <!-- MindAR Image Tracking (rastreamento de imagem) -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
     <style>
+        /* Remove margens e preenche toda a tela */
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #000;
-        }
-        .container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
+            background: #000; /* fundo preto enquanto a câmera não inicia */
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <a-scene
-            mindar-image="
-                imageTargetSrc: ./targets.mind;
-                autoStart: true;
-                uiLoading: true;
-                uiScanning: true;
-                uiError: true;
-                filterMinCF: 0.001;
-                filterBeta: 0.001;
-                maxTrack: 2;
-            "
-            embedded
-            color-space="sRGB"
-            renderer="
-                colorManagement: true;
-                physicallyCorrectLights: true;
-                antialias: true;
-            "
-            vr-mode-ui="enabled: false"
-            device-orientation-permission-ui="enabled: false"
-        >
-            <!-- Alvo de imagem index 0 -->
-            <a-entity mindar-image-target="targetIndex: 0">
-                <!-- Conteúdo sobreposto ao alvo -->
-                <a-plane
-                    position="0 0 0"
-                    width="1"
-                    height="0.552"
-                    material="color: #2196F3; opacity: 0.5; side: double;"
-                ></a-plane>
-            </a-entity>
-        </a-scene>
-    </div>
+
+    <!-- A cena inicia automaticamente quando a página carrega -->
+    <a-scene
+        mindar-image="imageTargetSrc: ./targets.mind;"
+        color-space="sRGB"
+        renderer="colorManagement: true; physicallyCorrectLights: true;"
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false"
+    >
+        <!-- Conteúdo vinculado ao alvo de imagem (índice 0) -->
+        <a-entity mindar-image-target="targetIndex: 0">
+            <!-- Exemplo: um retângulo azul semitransparente sobre o alvo -->
+            <a-plane
+                position="0 0 0"
+                width="1"
+                height="0.552"
+                color="blue"
+                opacity="0.5"
+            ></a-plane>
+        </a-entity>
+
+    </a-scene>
+
 </body>
 </html>
